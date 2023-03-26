@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 // eslint-disable-next-line import/no-extraneous-dependencies
 const { nanoid } = require('nanoid');
@@ -61,24 +62,59 @@ const getAllBooksHandler = (request, h) => {
   const {
     name, reading, finished,
   } = request.query;
-  let filteredBooks = books;
-  if (name) {
+  if (name !== undefined) {
     // eslint-disable-next-line max-len
-    filteredBooks = books.filter((book) => book.name.toLowerCase().includes(name.toLowerCase()));
+    const book = books.filter((bukuName) => bukuName.name.toLowerCase().includes(name.toLowerCase()));
+    const response = h.response({
+      status: 'success',
+      data: {
+        books: book.map((n) => ({
+          id: n.id,
+          name: n.name,
+          publisher: n.publisher,
+        })),
+      },
+    });
+    response.code(200);
+    return response;
   }
 
-  if (reading) {
-    filteredBooks = books.filter((book) => Number(book.reading) === Number(reading));
+  if (reading !== undefined) {
+    const bookReading = books.filter((bukuReading) => Number(bukuReading.reading) === Number(reading));
+    const response = h.response({
+      status: 'success',
+      data: {
+        books: bookReading.map((p) => ({
+          id: p.id,
+          name: p.name,
+          publisher: p.publisher,
+        })),
+      },
+    });
+    response.code(200);
+    return response;
   }
 
-  if (finished) {
-    filteredBooks = books.filter((book) => Number(book.finished) === Number(finished));
+  if (finished !== undefined) {
+    const bookFinished = books.filter((bukuFinished) => Number(bukuFinished.finished) === Number(finished));
+    const response = h.response({
+      status: 'success',
+      data: {
+        books: bookFinished.map((q) => ({
+          id: q.id,
+          name: q.name,
+          publisher: q.publisher,
+        })),
+      },
+    });
+    response.code(200);
+    return response;
   }
 
   const response = h.response({
     status: 'success',
     data: {
-      books: filteredBooks.map((book) => ({
+      books: books.map((book) => ({
         id: book.id,
         name: book.name,
         publisher: book.pubisher,
@@ -93,12 +129,14 @@ const getBookByIdHandler = (request, h) => {
   const { bookId } = request.params;
   const book = books.filter((n) => n.bookId === bookId)[0];
   if (book !== undefined) {
-    return {
+    const response = h.response({
       status: 'success',
       data: {
         book,
       },
-    };
+    });
+    response.code(200);
+    return response;
   }
 
   const response = h.response({
@@ -116,6 +154,7 @@ const editBookByIdHandler = (request, h) => {
   } = request.payload;
   const updatedAt = new Date().toISOString();
   const index = books.findIndex((book) => book.id === bookId);
+  const finished = pageCount === readPage;
 
   if (name === undefined) {
     const response = h.response({
@@ -135,8 +174,7 @@ const editBookByIdHandler = (request, h) => {
     return response;
   }
 
-  if (index !== 1) {
-    const finished = (pageCount === readPage);
+  if (index !== -1) {
     books[index] = {
       ...books[index], name, year, author, summary, publisher, pageCount, readPage, finished, reading, updatedAt,
     };
